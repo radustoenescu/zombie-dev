@@ -1,0 +1,9 @@
+COMPILER=rst2html5
+OPTIONS=
+SOURCE=log.rst
+TARGET=index.html
+
+all: $(TARGET)
+
+$(TARGET): $(SOURCE)
+	$(COMPILER) $(OPTIONS) $(SOURCE) > $(TARGET)
