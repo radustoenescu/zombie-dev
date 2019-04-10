@@ -1,5 +1,5 @@
 COMPILER=rst2html5
-OPTIONS=--stylesheet $(CSS)
+OPTIONS=--stylesheet css/docutils_solarized_light.css
 SOURCE=log.rst
 TARGET=index.html
 
