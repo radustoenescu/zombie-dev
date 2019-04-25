@@ -74,7 +74,7 @@ Here, of course I did that for you:
 
 .. image:: img/wicked_bits.jpg
 
-*Rumour has it that every horizontal line is a bitwise and between the current ``n`` and ``n-1``.
+*Rumour has it that every horizontal line is a bitwise and between the current n and n-1.
 Except from the shortest one(second to last) which is a typo.*
 
 So you can see how every and operation essentially knocks out one set bit at a time(*or one one*, if you prefer that).
