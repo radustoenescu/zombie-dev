@@ -1,29 +1,30 @@
+==============
 Zombie Dev Log
 ==============
 
-**Me:**
+`Code sleeps here <https://github.com/radustoenescu/zombie-dev>`_
 
-*A while back I died, as a developer.*
+Day 1 (Optimal matrix chain multiplication)
+-------------------------------------------
 
-This was a long process. *A quite fun one, though.*
+Because I know pretty well the Hanoi tower problem, I started with
+`Day 2 <https://medium.com/100-days-of-algorithms/day-2-matrix-chain-multiplication-3ae6349c34ab>`_.
 
-Everything started in 2014 when I joined the
-networking research lab of my college.
+The `Matrix chain multiplication <https://en.wikipedia.org/wiki/Matrix_chain_multiplication>`_
+problem is a quite straightforward example of `Dynamic programming <https://en.wikipedia.org/wiki/Dynamic_programming>`_.
 
-**You:**
+I implemented the basic algorithm. Wikipedia also points to a better algorithm, which I only skimmed over since
+it's quite complex and well beyond what I'm doing here.
 
-*Forget the college, tell us more about the death.*
+It took me:
 
-**Me:**
+    - thinking: 2m
+    - coding: 17m
+    - debugging: 9m
+    - total: 28m
 
-It was **research**, man. Research killed me ...as a developer (don't forget that, it might become important).
+In future I think I can limit debugging greatly since I made some noob mistakes which required quite a bit of
+looking around the code to fix, but the coding went smooth and I didn't search the documentation that much.
 
-**You**
-
-What the f*^%?
-
-**Me**
-
-Well, my friend, in research there are a couple of things that are completely
-different from the real world of production environments and normal computer
-engineering projects.
+You can find the code in the `usual place <https://github.com/radustoenescu/zombie-dev>`_. Nothing fancy. Maybe
+the ``@functools.lru_cache`` decorator is quite nice to check out since it makes memoization a lot easier to add.
