@@ -9,6 +9,7 @@
     <section id="zombie-dev-log">
         <h1>Zombie Dev Log</h1>
         <p><a href="https://github.com/radustoenescu/zombie-dev">Code sleeps here</a></p>
+        <a id="day1"></a>
         <section id="day-1-optimal-matrix-chain-multiplication">
             <h2>Day 1 (Optimal matrix chain multiplication)</h2>
             <p>Because I know pretty well the Hanoi tower problem, I started with <a href="https://medium.com/100-days-of-algorithms/day-2-matrix-chain-multiplication-3ae6349c34ab">Day 2</a>.</p>
@@ -25,6 +26,36 @@
             </blockquote>
             <p>In future I think I can limit debugging greatly since I made some noob mistakes which required quite a bit of looking around the code to fix, but the coding went smooth and I didn't search the documentation that much.</p>
             <p>You can find the code in the <a href="https://github.com/radustoenescu/zombie-dev">usual place</a>. Nothing fancy. Maybe the <code>@functools.lru_cache</code> decorator is quite nice to check out since it makes memoization a lot easier to add.</p>
+        </section>
+        <a id="day2"></a>
+        <section id="day-2-counting-set-bits">
+            <h2>Day 2 (Counting set bits)</h2>
+            <p>Given an <code>int</code>, how many ones are there in its binary representation.</p>
+            <p>For example: <code>0b00101</code> -&gt; 2; <code>0b001011101</code> -&gt; 5. You got the idea, easy peasy.</p>
+            <pre data-language="python"><span class="k">def</span> <span class="nf">count_bits</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+<span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">while</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">count</span> <span class="o">+=</span> <span class="n">n</span> <span class="o">&amp;</span> <span class="mi">1</span>
+    <span class="n">n</span> <span class="o">&gt;&gt;=</span> <span class="mi">1</span>
+<span class="k">return</span> <span class="n">count</span></pre>
+            <p>It works, but what the hell man?! That's kids stuff.</p>
+            <p>Right, of course you can do better than that:</p>
+            <pre data-language="python"><span class="k">def</span> <span class="nf">count_bits_wicked</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">while</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">&amp;=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">count</span></pre>
+            <p><em>What?</em></p>
+            <p>Yeah, that's what I thought when I first saw that. I hate bit twiddling. I personally think it cripples the mind of any sane person.</p>
+            <p>However, this one above is pretty easy to grasp and understand if you try it on a piece of paper.</p>
+            <p>Here, of course I did that for you:</p>
+            <img src="img/wicked_bits.jpg" />
+            <p><em>Rumour has it that every horizontal line is a bitwise and between the current ``n`` and ``n-1``. Except from the shortest one(second to last) which is a typo.</em></p>
+            <p>So you can see how every and operation essentially knocks out one set bit at a time(<em>or one one</em>, if you prefer that).</p>
+            <p>Thus, the complexity is <code>Theta(bits_set)</code> as opposed to my solution which went through all the bits every time, yielding <code>Theta(bits)</code> in complexity.</p>
+            <p>This second solution is not mine. On this <a href="https://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetKernighan">bit porn</a> site you can learn more about it, and also find more bit twiddling porn if you're into that.</p>
+            <p><em>No times for this problem since the naive solution took me nothing, and the smart one is not mine.</em></p>
         </section>
     </section>
 </body>
