@@ -86,3 +86,56 @@ This second solution is not mine. On this `bit porn <https://graphics.stanford.e
 bit twiddling porn if you're into that.
 
 *No times for this problem since the naive solution took me nothing, and the smart one is not mine.*
+
+.. _day3:
+
+Day 3 (The Sieve of Eratosthenes)
+---------------------------------
+
+**SPOILER ALERT: BOY ... IT WAS FUN!**
+
+This belongs to `day 5 <https://medium.com/100-days-of-algorithms/day-5-eratosthenes-sieve-60ab162a1f5b>`_ in the original series.
+
+Ok, this is a pretty simple algorithm, I remember implementing it for the first time in `highschool <https://www.facebook.com/Liceul-Teoretic-Alexandru-Ghica-Alexandria-830767510327046/>`_
+in Pascal. What makes it simple is that, usually, people implement the, let's call it, *bounded Sieve* - which generates all the primes up to a limit, and, if the limit is reasonable one
+can store the whole table in memory, and that's that - you just delete things from it, or mark things as non-prime.
+
+Having said this, if you want to generate primes infinitely(*given a certain memory or time budget*), the problem gets more interesting - *this one I implemented in college, in Scheme,
+or at least I thought so :)), but I'll stop with the spoilers now.* 
+
+Well, my idea (the one I implemented in college) is to start with an infinite generator containing all natural numbers above 1. At each step you pop one out and filter out its multiples
+from the generator. Easy-peasy, right?!
+
+So, I came out with this Python3 code:
+
+.. code:: python
+
+    import itertools
+
+    def sieve():
+        # begin with all natural numbers above 1
+        picker = itertools.count(2)
+        while True:
+            # take the next available number
+            v = next(picker)
+            yield v
+            # filter from the generator its multiples
+            picker = filter(lambda x: x % v != 0, picker)
+
+Aaand it didn't work.
+
+Furthermore, I had no frickin' clue why it didn't. I could see some weird behavior in the debugger - the generator's contents were wrong - but I didn't knew why.
+
+I got a little paranoid, and started doubting I knew the solution, so I double checked by quickly implementing it in Haskell:
+
+.. code:: haskell
+
+    sieve remaining = nextItem : sieve (filter (\x -> x `mod` nextItem /= 0) remaining)
+    where
+        nextItem = head remaining
+
+And that one worked. Now I was really puzzled since the Python code was a mere translation of the one in Haskell, I thought maybe I don't understand the inner workings of infinite
+generators in Python and the ``filter`` method
+
+ `so I asked on
+Stackoverflow <>`
