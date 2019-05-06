@@ -81,21 +81,54 @@
             <p>Furthermore, I had no frickin' clue why it didn't. I could see some weird behavior in the debugger - the generator's contents were wrong - but I didn't knew why.</p>
             <p>I got a little paranoid, and started doubting I knew the solution, so I double checked by quickly implementing it in Haskell:</p>
             <pre data-language="haskell"><span class="nf">sieve</span> <span class="n">remaining</span> <span class="ow">=</span> <span class="n">nextItem</span> <span class="kt">:</span> <span class="n">sieve</span> <span class="p">(</span><span class="n">filter</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="p">`</span><span class="n">mod</span><span class="p">`</span> <span class="n">nextItem</span> <span class="o">/=</span> <span class="mi">0</span><span class="p">)</span> <span class="n">remaining</span><span class="p">)</span>
-<span class="kr">where</span>
-    <span class="n">nextItem</span> <span class="ow">=</span> <span class="n">head</span> <span class="n">remaining</span></pre>
-            <p>And that one worked. Now I was really puzzled since the Python code was a mere translation of the one in Haskell, I thought maybe I don't understand the inner workings of infinite generators in Python and the <code>filter</code> method</p>
-            <blockquote>
-                <p><a id="id2" class="problematic" href="#id1">`</a>so I asked on</p>
-                <div id="id1">
-                    <h1>System Message: WARNING/2 (log.rst line 140) <a href="#id2">id2</a></h1>
-                    <p>Inline interpreted text or phrase reference start-string without end-string.</p>
-                </div>
-            </blockquote>
-            <div>
-                <h1>System Message: WARNING/2 (log.rst line 141)</h1>
-                <p>Block quote ends without a blank line; unexpected unindent.</p>
-            </div>
-            <p>Stackoverflow &lt;&gt;`</p>
+    <span class="kr">where</span>
+        <span class="n">nextItem</span> <span class="ow">=</span> <span class="n">head</span> <span class="n">remaining</span></pre>
+            <p>And that one worked. Now I was really puzzled since the Python code was a mere translation of the one in Haskell, I thought maybe I don't understand the inner workings of infinite generators in Python and the <code>filter</code> method <a href="https://stackoverflow.com/questions/55966499/troublesome-filter-behavior-when-implementing-the-sieve-of-eratosthenes-in-pyt">so I asked on Stackoverflow</a>. I found out there that lambdas in Python <a href="https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture">don't work as I expected</a> (as they do in most functional programming languages).</p>
+            <p>The fix is below:</p>
+            <p><code>picker = filter(lambda x, prime = v: x % prime != 0, picker)</code></p>
+            <p>Already this was proving more educative than it looked like in the beginning. But the really fun part starts now. While I was waiting for some light on Stackoveflow, I also looked on Wikipedia for more insight, especially at the, so called, <a href="https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes#Incremental_sieve">iterative sieve</a> where I found this:</p>
+            <p><em>Primes can also be produced by iteratively sieving out the composites through divisibility testing by sequential primes, one prime at a time. It is not the sieve of Eratosthenes but is often confused with it, even though the sieve of Eratosthenes directly generates the composites instead of testing for them. Trial division has worse theoretical complexity than that of the sieve of Eratosthenes in generating ranges of primes.</em></p>
+            <p><strong>BAM!</strong> I wasn't implementing the true algorithm(nor was I back in college). A thing which is pretty clear, now, in retrospect. <a href="http://eprints.whiterose.ac.uk/3784/1/runcimanc1.pdf">My version</a>, which is also pretty famous due to its beautiful implementation, doesn't jump from one multiple to another, simply checks one number after another if it is a multiple(<em>a pretty bad thing, but more on that later</em>). So famous, that I even found a paper about the <a href="https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf">"unfaithful" vs. the genuine sieve</a>.</p>
+            <p><strong>Short recap:</strong> at this point I have a working version of the wrong algorithm that generates primes indefinitely. Next, let's code the genuine sieve.</p>
+            <pre data-language="python"><span class="kn">import</span> <span class="nn">heapq</span>
+<span class="c"># In the proper sieve we will cross multiples as we go,</span>
+<span class="c"># For each prime we found we&#39;ll keep its largest multiple generated</span>
+<span class="c"># that wasn&#39;t reached so far in our search.</span>
+<span class="c">#</span>
+<span class="c"># When our iteration reaches a multiple, it gets popped and the next</span>
+<span class="c"># multiple is inserted in the heap.</span>
+<span class="k">def</span> <span class="nf">proper_sieve</span><span class="p">():</span>
+    <span class="k">yield</span> <span class="mi">2</span>
+    <span class="n">crt_number</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">multiples</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">4</span><span class="p">,</span><span class="mi">2</span><span class="p">)]</span>
+
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">next_multiple</span> <span class="o">=</span> <span class="n">multiples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c"># if the next smalles multiple is larger than the number we&#39;re currently looking at</span>
+        <span class="c"># then all the numbers between the two are primes</span>
+        <span class="c"># we&#39;ll report them as such and add their first multiples to the queue</span>
+        <span class="k">if</span> <span class="n">next_multiple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">crt_number</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">crt_number</span><span class="p">,</span> <span class="n">next_multiple</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                <span class="k">yield</span> <span class="n">n</span>
+                <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">multiples</span><span class="p">,</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+            <span class="n">crt_number</span> <span class="o">=</span> <span class="n">next_multiple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># otherwise, the current number is not a prime, and we&#39;ll pop it</span>
+            <span class="c"># from the queue, and add the next multiple to the queue</span>
+            <span class="k">while</span> <span class="n">next_multiple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">crt_number</span><span class="p">:</span>
+                <span class="n">heapq</span><span class="o">.</span><span class="n">heappop</span><span class="p">(</span><span class="n">multiples</span><span class="p">)</span>
+                <span class="n">heapq</span><span class="o">.</span><span class="n">heappush</span><span class="p">(</span><span class="n">multiples</span><span class="p">,</span> <span class="p">(</span><span class="n">next_multiple</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">next_multiple</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">next_multiple</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="n">next_multiple</span> <span class="o">=</span> <span class="n">multiples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">crt_number</span> <span class="o">+=</span> <span class="mi">1</span></pre>
+            <p>Now you see why it's so easy to fall for the "unfaithful" sieve. This version is much more verbose and contrived, but it has a plus - <em>it's not a different algorithm</em>.</p>
+            <p>And, yeah, it has another plus - it's much faster than the first.</p>
+            <p>I printed the first 100 000 primes using both algorithms running:</p>
+            <p><code>/usr/bin/time -v python3 sieve.py &gt; out</code></p>
+            <p>Granted this is not the most reliable way of carrying out a micro benchmark, you can check out the code - which is in the usual place - and test them yourselves, perhaps using a more exact tool such as <a href="https://docs.python.org/3/library/timeit.html">timeit</a>.</p>
+            <p>The difference was huge: 10 minutes vs. 3 seconds. The memory consumption was also halved.</p>
+            <p>It took me 6 minutes to code the thing and 5 minutes to test and fix some small problems. It uses one well-known optimization: the first multiple to consider for each prime is the prime squared, instead of the prime doubled(you can see why this works with a pen and paper by stepping through the unoptimized version of the algorithm a couple of times, or by checking Wikipedia). You can do better, for instance avoiding even numbers since they are clearly not primes, and occur often, <em>maybe in the future I'll look into it a bit deeper</em>.</p>
+            <p>The general idea of the algorithm sits in the comments of the code, further details you can find in the <a href="https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf">paper</a> I mentioned.</p>
+            <p>On rosetta code you can find <a href="https://rosettacode.org/wiki/Sieve_of_Eratosthenes#Infinite_generator">another implementation</a> of the same algorithm, which is cleaner, but marginally slower.</p>
         </section>
     </section>
 </body>

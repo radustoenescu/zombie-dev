@@ -131,11 +131,82 @@ I got a little paranoid, and started doubting I knew the solution, so I double c
 .. code:: haskell
 
     sieve remaining = nextItem : sieve (filter (\x -> x `mod` nextItem /= 0) remaining)
-    where
-        nextItem = head remaining
+        where
+            nextItem = head remaining
 
 And that one worked. Now I was really puzzled since the Python code was a mere translation of the one in Haskell, I thought maybe I don't understand the inner workings of infinite
 generators in Python and the ``filter`` method
+`so I asked on Stackoverflow <https://stackoverflow.com/questions/55966499/troublesome-filter-behavior-when-implementing-the-sieve-of-eratosthenes-in-pyt>`_.
+I found out there that lambdas in Python `don't work as I expected <https://stackoverflow.com/questions/2295290/what-do-lambda-function-closures-capture>`_
+(as they do in most functional programming languages).
 
- `so I asked on
-Stackoverflow <>`
+The fix is below:
+
+``picker = filter(lambda x, prime = v: x % prime != 0, picker)``
+
+Already this was proving more educative than it looked like in the beginning. But the really fun part starts now. While I was waiting for some light on Stackoveflow, I also
+looked on Wikipedia for more insight, especially at the, so called,  `iterative sieve <https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes#Incremental_sieve>`_ where I found this:
+
+*Primes can also be produced by iteratively sieving out the composites through divisibility testing by sequential primes, one prime at a time. It is not the sieve of Eratosthenes but is often confused with it,
+even though the sieve of Eratosthenes directly generates the composites instead of testing for them.
+Trial division has worse theoretical complexity than that of the sieve of Eratosthenes in generating ranges of primes.*
+
+**BAM!** I wasn't implementing the true algorithm(nor was I back in college). A thing which is pretty clear, now, in retrospect. `My version <http://eprints.whiterose.ac.uk/3784/1/runcimanc1.pdf>`_,
+which is also pretty famous due to its beautiful implementation, doesn't jump from one multiple to another, simply checks one number after another if it is a multiple(*a pretty bad thing,
+but more on that later*). So famous, that I even found a paper about the `"unfaithful" vs. the genuine sieve <https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf>`_.
+
+**Short recap:** at this point I have a working version of the wrong algorithm that generates primes indefinitely. Next, let's code the genuine sieve. 
+ 
+.. code:: python
+
+    import heapq
+    # In the proper sieve we will cross multiples as we go,
+    # For each prime we found we'll keep its largest multiple generated
+    # that wasn't reached so far in our search.
+    #
+    # When our iteration reaches a multiple, it gets popped and the next
+    # multiple is inserted in the heap.
+    def proper_sieve():
+        yield 2
+        crt_number = 3
+        multiples = [(4,2)]
+
+        while True:
+            next_multiple = multiples[0]
+            # if the next smalles multiple is larger than the number we're currently looking at
+            # then all the numbers between the two are primes
+            # we'll report them as such and add their first multiples to the queue
+            if next_multiple[0] > crt_number:
+                for n in range(crt_number, next_multiple[0]):
+                    yield n
+                    heapq.heappush(multiples, (n * n, n))
+                crt_number = next_multiple[0]
+            else:
+                # otherwise, the current number is not a prime, and we'll pop it
+                # from the queue, and add the next multiple to the queue
+                while next_multiple[0] == crt_number:
+                    heapq.heappop(multiples)
+                    heapq.heappush(multiples, (next_multiple[0] + next_multiple[1], next_multiple[1]))
+                    next_multiple = multiples[0]
+                crt_number += 1
+
+Now you see why it's so easy to fall for the "unfaithful" sieve. This version is much more verbose and contrived, but it has a plus - *it's not a different algorithm*.
+
+And, yeah, it has another plus - it's much faster than the first.
+
+I printed the first 100 000 primes using both algorithms running:
+
+``/usr/bin/time -v python3 sieve.py > out``
+
+Granted this is not the most reliable way of carrying out a micro benchmark, you can check out the code - which is in the usual place - and test them yourselves, perhaps
+using a more exact tool such as `timeit <https://docs.python.org/3/library/timeit.html>`_.
+
+The difference was huge: 10 minutes vs. 3 seconds. The memory consumption was also halved.
+
+It took me 6 minutes to code the thing and 5 minutes to test and fix some small problems. It uses one well-known optimization: the first multiple to consider for each prime is the prime squared,
+instead of the prime doubled(you can see why this works with a pen and paper by stepping through the unoptimized version of the algorithm a couple of times, or by checking Wikipedia). You can do better,
+for instance avoiding even numbers since they are clearly not primes, and occur often, *maybe in the future I'll look into it a bit deeper*.
+
+The general idea of the algorithm sits in the comments of the code, further details you can find in the `paper <https://www.cs.hmc.edu/~oneill/papers/Sieve-JFP.pdf>`_ I mentioned.
+
+On rosetta code you can find `another implementation <https://rosettacode.org/wiki/Sieve_of_Eratosthenes#Infinite_generator>`_ of the same algorithm, which is cleaner, but marginally slower.
