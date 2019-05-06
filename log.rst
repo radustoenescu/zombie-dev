@@ -198,7 +198,7 @@ I printed the first 100 000 primes using both algorithms running:
 
 ``/usr/bin/time -v python3 sieve.py > out``
 
-Granted this is not the most reliable way of carrying out a micro benchmark, you can check out the code - which is in the usual place - and test them yourselves, perhaps
+Granted this is not the most reliable way of carrying out a micro benchmark, you can check out `the code <https://github.com/radustoenescu/zombie-dev/blob/master/my-100days/sieve.py>`_ - which is in the usual place - and test them yourselves, perhaps
 using a more exact tool such as `timeit <https://docs.python.org/3/library/timeit.html>`_.
 
 The difference was huge: 10 minutes vs. 3 seconds. The memory consumption was also halved.
