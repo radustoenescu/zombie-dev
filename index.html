@@ -87,7 +87,7 @@
         <span class="c"># filter from the generator its multiples</span>
         <span class="n">picker</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">%</span> <span class="n">v</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">picker</span><span class="p">)</span></pre>
             <p>Aaand it didn't work.</p>
-            <p>Furthermore, I had no frickin' clue why it didn't. I could see some weird behavior in the debugger - the generator's contents were wrong - but I didn't knew why.</p>
+            <p>Furthermore, I had no frickin' clue why it didn't. I could see some weird behavior in the debugger - the generator's contents were wrong - but I didn't know why.</p>
             <p>I got a little paranoid, and started doubting I knew the solution, so I double checked by quickly implementing it in Haskell:</p>
             <pre data-language="haskell"><span class="nf">sieve</span> <span class="n">remaining</span> <span class="ow">=</span> <span class="n">nextItem</span> <span class="kt">:</span> <span class="n">sieve</span> <span class="p">(</span><span class="n">filter</span> <span class="p">(</span><span class="nf">\</span><span class="n">x</span> <span class="ow">-&gt;</span> <span class="n">x</span> <span class="p">`</span><span class="n">mod</span><span class="p">`</span> <span class="n">nextItem</span> <span class="o">/=</span> <span class="mi">0</span><span class="p">)</span> <span class="n">remaining</span><span class="p">)</span>
     <span class="kr">where</span>

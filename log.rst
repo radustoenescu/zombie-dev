@@ -124,7 +124,7 @@ So, I came out with this Python3 code:
 
 Aaand it didn't work.
 
-Furthermore, I had no frickin' clue why it didn't. I could see some weird behavior in the debugger - the generator's contents were wrong - but I didn't knew why.
+Furthermore, I had no frickin' clue why it didn't. I could see some weird behavior in the debugger - the generator's contents were wrong - but I didn't know why.
 
 I got a little paranoid, and started doubting I knew the solution, so I double checked by quickly implementing it in Haskell:
 
